@@ -112,7 +112,7 @@ message OpenRouterModelInfo {
   optional ThinkingConfig thinking_config = 10;
   optional bool supports_global_endpoint = 11;
   repeated ModelTier tiers = 12;
-  repeated OpenRouterEndpoint endpoints = 13; // All available endpoints for this model
+  repeated OpenRouterEndpoint endpoints = 13; // Available endpoints for this model (kept for data transfer, removed from application ModelInfo)
 }
 
 // Shared response message for model information

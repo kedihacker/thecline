@@ -115,7 +115,7 @@ function convertModelInfoToProtoOpenRouter(info: ModelInfo | undefined): OpenRou
 		thinkingConfig: convertThinkingConfigToProto(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers || [],
-		endpoints: [], // Endpoints are now managed separately in the context
+		endpoints: [], // Endpoints not stored in application ModelInfo but kept in proto for data transfer
 	}
 }
 

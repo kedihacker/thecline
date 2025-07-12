@@ -24,6 +24,18 @@ export interface OpenRouterEndpoint {
 	discount: number
 }
 
+/**
+ * Structure to store OpenRouter model endpoints, addressable by model ID
+ */
+export interface OpenRouterModelEndpoint extends OpenRouterEndpoint {
+	modelId: string // Add model ID to make it addressable
+}
+
+/**
+ * Collection of OpenRouter model endpoints, indexed by model ID for easy access
+ */
+export type OpenRouterModelEndpoints = Record<string, OpenRouterEndpoint[]>
+
 export interface OpenRouterSelectedEndpoint {
 	modelId: string
 	endpointTag: string

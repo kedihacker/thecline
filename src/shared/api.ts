@@ -1,17 +1,11 @@
 import type { LanguageModelChatSelector } from "../api/providers/types"
-import type { OpenRouterSelectedEndpoints, OpenRouterEndpoint } from "./types/openrouter"
+import type { OpenRouterSelectedEndpoints, OpenRouterEndpoint, OpenRouterModelEndpoints, OpenRouterModelEndpoint } from "./types/openrouter"
 
-// Export the new endpoint types and utilities
+// Export the endpoint types
 export type { 
 	OpenRouterModelEndpoints, 
 	OpenRouterModelEndpoint,
-} from "./types/openRouterModelEndpoints"
-export { 
-	getEndpointsForModel,
-	getModelIdsWithEndpoints, 
-	flattenModelEndpoints,
-	createOpenRouterModelEndpoints 
-} from "./types/openRouterModelEndpoints"
+} from "./types/openrouter"
 
 export type ApiProvider =
 	| "anthropic"

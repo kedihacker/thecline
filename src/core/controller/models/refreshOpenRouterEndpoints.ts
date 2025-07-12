@@ -88,7 +88,7 @@ export async function refreshOpenRouterEndpoints(
 				thinkingConfig: undefined,
 				supportsGlobalEndpoint: undefined,
 				tiers: [],
-				endpoints: endpoints, // Store all endpoint information
+				endpoints: [], // Endpoints are now managed separately
 			})
 
 			// Apply model-specific configurations (same logic as refreshOpenRouterModels)

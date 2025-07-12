@@ -115,7 +115,7 @@ function convertModelInfoToProtoOpenRouter(info: ModelInfo | undefined): OpenRou
 		thinkingConfig: convertThinkingConfigToProto(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers || [],
-		endpoints: info.endpoints ? info.endpoints.map(convertEndpointToProto) : [], // Convert endpoints properly
+		endpoints: [], // Endpoints are now managed separately in the context
 	}
 }
 
@@ -138,7 +138,7 @@ function convertProtoToModelInfo(info: OpenRouterModelInfo | undefined): ModelIn
 		thinkingConfig: convertProtoToThinkingConfig(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers.length > 0 ? info.tiers : undefined,
-		endpoints: info.endpoints && info.endpoints.length > 0 ? info.endpoints.map(convertProtoToEndpoint) : undefined, // Convert endpoints properly
+		// endpoints field removed - endpoints are now managed separately
 	}
 }
 

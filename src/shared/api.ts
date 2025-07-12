@@ -147,7 +147,6 @@ export interface ModelInfo {
 		cacheWritesPrice?: number
 		cacheReadsPrice?: number
 	}[]
-	endpoints?: OpenRouterEndpoint[] // Available endpoints for this model
 }
 
 export interface OpenAiCompatibleModelInfo extends ModelInfo {

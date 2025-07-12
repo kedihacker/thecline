@@ -489,7 +489,7 @@ export const ExtensionStateContextProvider: React.FC<{
 				console.log("[DEBUG] Received OpenRouter models update from gRPC stream")
 				const models = response.models
 
-				// Extract endpoints from the response and store them separately
+				// Extract endpoints and put them into the extension state context
 				const modelEndpoints: OpenRouterModelEndpoint[] = []
 				Object.entries(models).forEach(([id, modelInfo]) => {
 					if (modelInfo.endpoints) {
@@ -501,32 +501,11 @@ export const ExtensionStateContextProvider: React.FC<{
 						})
 					}
 				})
-
-				// Update the endpoints in the context
 				setOpenRouterSelectedEndpoints(modelEndpoints)
-
-				// Update the models (without endpoints)
-				const modelsWithoutEndpoints: Record<string, ModelInfo> = {}
-				Object.entries(models).forEach(([id, modelInfo]) => {
-					modelsWithoutEndpoints[id] = {
-						maxTokens: modelInfo.maxTokens,
-						contextWindow: modelInfo.contextWindow,
-						supportsImages: modelInfo.supportsImages,
-						supportsPromptCache: modelInfo.supportsPromptCache,
-						inputPrice: modelInfo.inputPrice,
-						outputPrice: modelInfo.outputPrice,
-						cacheWritesPrice: modelInfo.cacheWritesPrice,
-						cacheReadsPrice: modelInfo.cacheReadsPrice,
-						description: modelInfo.description,
-						thinkingConfig: modelInfo.thinkingConfig,
-						supportsGlobalEndpoint: modelInfo.supportsGlobalEndpoint,
-						tiers: modelInfo.tiers && modelInfo.tiers.length > 0 ? modelInfo.tiers : undefined,
-					}
-				})
 
 				setOpenRouterModels({
 					[openRouterDefaultModelId]: openRouterDefaultModelInfo, // in case the extension sent a model list without the default model
-					...modelsWithoutEndpoints,
+					...models,
 				})
 			},
 			onError: (error) => {
@@ -670,7 +649,7 @@ export const ExtensionStateContextProvider: React.FC<{
 			.then((response: OpenRouterCompatibleModelInfo) => {
 				const models = response.models
 
-				// Extract endpoints from the response and store them separately
+				// Extract endpoints and put them into the extension state context
 				const modelEndpoints: OpenRouterModelEndpoint[] = []
 				Object.entries(models).forEach(([id, modelInfo]) => {
 					if (modelInfo.endpoints) {
@@ -682,32 +661,11 @@ export const ExtensionStateContextProvider: React.FC<{
 						})
 					}
 				})
-
-				// Update the endpoints in the context
 				setOpenRouterSelectedEndpoints(modelEndpoints)
-
-				// Update the models (without endpoints)
-				const modelsWithoutEndpoints: Record<string, ModelInfo> = {}
-				Object.entries(models).forEach(([id, modelInfo]) => {
-					modelsWithoutEndpoints[id] = {
-						maxTokens: modelInfo.maxTokens,
-						contextWindow: modelInfo.contextWindow,
-						supportsImages: modelInfo.supportsImages,
-						supportsPromptCache: modelInfo.supportsPromptCache,
-						inputPrice: modelInfo.inputPrice,
-						outputPrice: modelInfo.outputPrice,
-						cacheWritesPrice: modelInfo.cacheWritesPrice,
-						cacheReadsPrice: modelInfo.cacheReadsPrice,
-						description: modelInfo.description,
-						thinkingConfig: modelInfo.thinkingConfig,
-						supportsGlobalEndpoint: modelInfo.supportsGlobalEndpoint,
-						tiers: modelInfo.tiers && modelInfo.tiers.length > 0 ? modelInfo.tiers : undefined,
-					}
-				})
 
 				setOpenRouterModels({
 					[openRouterDefaultModelId]: openRouterDefaultModelInfo, // in case the extension sent a model list without the default model
-					...modelsWithoutEndpoints,
+					...models,
 				})
 			})
 			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
@@ -717,7 +675,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		try {
 			const response = await ModelsServiceClient.refreshOpenRouterEndpoints(StringRequest.create({ value: modelId }))
 			if (response?.models) {
-				// Extract endpoints from the response and store them separately
+				// Extract endpoints and put them into the extension state context
 				const modelEndpoints: OpenRouterModelEndpoint[] = []
 				Object.entries(response.models).forEach(([id, modelInfo]) => {
 					if (modelInfo.endpoints) {
@@ -729,34 +687,13 @@ export const ExtensionStateContextProvider: React.FC<{
 						})
 					}
 				})
-
-				// Update the endpoints in the context
 				setOpenRouterSelectedEndpoints(modelEndpoints)
-
-				// Update the models (without endpoints)
-				const modelsWithoutEndpoints: Record<string, ModelInfo> = {}
-				Object.entries(response.models).forEach(([id, modelInfo]) => {
-					modelsWithoutEndpoints[id] = {
-						maxTokens: modelInfo.maxTokens,
-						contextWindow: modelInfo.contextWindow,
-						supportsImages: modelInfo.supportsImages,
-						supportsPromptCache: modelInfo.supportsPromptCache,
-						inputPrice: modelInfo.inputPrice,
-						outputPrice: modelInfo.outputPrice,
-						cacheWritesPrice: modelInfo.cacheWritesPrice,
-						cacheReadsPrice: modelInfo.cacheReadsPrice,
-						description: modelInfo.description,
-						thinkingConfig: modelInfo.thinkingConfig,
-						supportsGlobalEndpoint: modelInfo.supportsGlobalEndpoint,
-						tiers: modelInfo.tiers && modelInfo.tiers.length > 0 ? modelInfo.tiers : undefined,
-					}
-				})
 
 				setOpenRouterModels((prevModels) => ({
 					...prevModels,
-					...modelsWithoutEndpoints,
+					...response.models,
 				}))
-				return modelsWithoutEndpoints[modelId]
+				return response.models[modelId]
 			}
 		} catch (error) {
 			console.error(`Failed to refresh OpenRouter endpoints for model ${modelId}:`, error)

@@ -1,5 +1,17 @@
 import type { LanguageModelChatSelector } from "../api/providers/types"
-import type { OpenRouterSelectedEndpoints } from "./types/openrouter"
+import type { OpenRouterSelectedEndpoints, OpenRouterEndpoint } from "./types/openrouter"
+
+// Export the new endpoint types and utilities
+export type { 
+	OpenRouterModelEndpoints, 
+	OpenRouterModelEndpoint,
+} from "./types/openRouterModelEndpoints"
+export { 
+	getEndpointsForModel,
+	getModelIdsWithEndpoints, 
+	flattenModelEndpoints,
+	createOpenRouterModelEndpoints 
+} from "./types/openRouterModelEndpoints"
 
 export type ApiProvider =
 	| "anthropic"
@@ -141,6 +153,7 @@ export interface ModelInfo {
 		cacheWritesPrice?: number
 		cacheReadsPrice?: number
 	}[]
+	endpoints?: OpenRouterEndpoint[] // Available endpoints for this model
 }
 
 export interface OpenAiCompatibleModelInfo extends ModelInfo {

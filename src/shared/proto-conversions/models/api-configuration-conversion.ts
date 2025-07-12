@@ -7,7 +7,7 @@ import {
 	OpenAiCompatibleModelInfo as AppOpenAiCompatibleModelInfo,
 	LiteLLMModelInfo as AppLiteLLMModelInfo,
 } from "../../api"
-import { OpenRouterSelectedEndpoints } from "../../types/openrouter"
+import { OpenRouterSelectedEndpoints, OpenRouterEndpoint as AppOpenRouterEndpoint } from "../../types/openrouter"
 import {
 	ModelsApiConfiguration as ProtoApiConfiguration,
 	ApiProvider as ProtoApiProvider,
@@ -15,9 +15,60 @@ import {
 	OpenAiCompatibleModelInfo,
 	OpenRouterModelInfo,
 	OpenRouterSelectedEndpoints as ProtoOpenRouterSelectedEndpoints,
+	OpenRouterEndpoint as ProtoOpenRouterEndpoint,
 	SelectedEndpoint,
 	ThinkingConfig,
 } from "../../proto/models"
+
+// Convert application OpenRouterEndpoint to proto OpenRouterEndpoint
+function convertEndpointToProto(endpoint: AppOpenRouterEndpoint): ProtoOpenRouterEndpoint {
+	return {
+		name: endpoint.name,
+		contextLength: endpoint.contextLength,
+		providerName: endpoint.providerName,
+		tag: endpoint.tag,
+		maxCompletionTokens: endpoint.maxCompletionTokens,
+		maxPromptTokens: endpoint.maxPromptTokens,
+		supportedParameters: endpoint.supportedParameters,
+		status: endpoint.status,
+		uptimeLast30m: endpoint.uptimeLast30m,
+		quantization: endpoint.quantization,
+		promptPrice: endpoint.promptPrice,
+		completionPrice: endpoint.completionPrice,
+		requestPrice: endpoint.requestPrice,
+		imagePrice: endpoint.imagePrice,
+		webSearchPrice: endpoint.webSearchPrice,
+		internalReasoningPrice: endpoint.internalReasoningPrice,
+		inputCacheReadPrice: endpoint.inputCacheReadPrice,
+		inputCacheWritePrice: endpoint.inputCacheWritePrice,
+		discount: endpoint.discount,
+	}
+}
+
+// Convert proto OpenRouterEndpoint to application OpenRouterEndpoint
+function convertProtoToEndpoint(endpoint: ProtoOpenRouterEndpoint): AppOpenRouterEndpoint {
+	return {
+		name: endpoint.name,
+		contextLength: endpoint.contextLength,
+		providerName: endpoint.providerName,
+		tag: endpoint.tag,
+		maxCompletionTokens: endpoint.maxCompletionTokens,
+		maxPromptTokens: endpoint.maxPromptTokens,
+		supportedParameters: endpoint.supportedParameters,
+		status: endpoint.status,
+		uptimeLast30m: endpoint.uptimeLast30m,
+		quantization: endpoint.quantization,
+		promptPrice: endpoint.promptPrice,
+		completionPrice: endpoint.completionPrice,
+		requestPrice: endpoint.requestPrice,
+		imagePrice: endpoint.imagePrice,
+		webSearchPrice: endpoint.webSearchPrice,
+		internalReasoningPrice: endpoint.internalReasoningPrice,
+		inputCacheReadPrice: endpoint.inputCacheReadPrice,
+		inputCacheWritePrice: endpoint.inputCacheWritePrice,
+		discount: endpoint.discount,
+	}
+}
 
 // Convert application ThinkingConfig to proto ThinkingConfig
 function convertThinkingConfigToProto(config: ModelInfo["thinkingConfig"]): ThinkingConfig | undefined {
@@ -64,7 +115,7 @@ function convertModelInfoToProtoOpenRouter(info: ModelInfo | undefined): OpenRou
 		thinkingConfig: convertThinkingConfigToProto(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers || [],
-		endpoints: [], // Initialize with empty array for backward compatibility
+		endpoints: info.endpoints ? info.endpoints.map(convertEndpointToProto) : [], // Convert endpoints properly
 	}
 }
 
@@ -87,6 +138,7 @@ function convertProtoToModelInfo(info: OpenRouterModelInfo | undefined): ModelIn
 		thinkingConfig: convertProtoToThinkingConfig(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers.length > 0 ? info.tiers : undefined,
+		endpoints: info.endpoints && info.endpoints.length > 0 ? info.endpoints.map(convertProtoToEndpoint) : undefined, // Convert endpoints properly
 	}
 }
 

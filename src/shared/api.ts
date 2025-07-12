@@ -1,4 +1,5 @@
 import type { LanguageModelChatSelector } from "../api/providers/types"
+import type { OpenRouterSelectedEndpoints } from "./types/openrouter"
 
 export type ApiProvider =
 	| "anthropic"
@@ -44,6 +45,7 @@ export interface ApiHandlerOptions {
 	openRouterModelId?: string
 	openRouterModelInfo?: ModelInfo
 	openRouterProviderSorting?: string
+	openRouterSelectedEndpoints?: OpenRouterSelectedEndpoints
 	awsAccessKey?: string
 	awsSecretKey?: string
 	awsSessionToken?: string

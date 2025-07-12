@@ -1,3 +1,4 @@
+import { string } from "zod"
 import {
 	ApiConfiguration,
 	ApiProvider,
@@ -6,12 +7,15 @@ import {
 	OpenAiCompatibleModelInfo as AppOpenAiCompatibleModelInfo,
 	LiteLLMModelInfo as AppLiteLLMModelInfo,
 } from "../../api"
+import { OpenRouterSelectedEndpoints } from "../../types/openrouter"
 import {
 	ModelsApiConfiguration as ProtoApiConfiguration,
 	ApiProvider as ProtoApiProvider,
 	LiteLLMModelInfo,
 	OpenAiCompatibleModelInfo,
 	OpenRouterModelInfo,
+	OpenRouterSelectedEndpoints as ProtoOpenRouterSelectedEndpoints,
+	SelectedEndpoint,
 	ThinkingConfig,
 } from "../../proto/models"
 
@@ -60,6 +64,7 @@ function convertModelInfoToProtoOpenRouter(info: ModelInfo | undefined): OpenRou
 		thinkingConfig: convertThinkingConfigToProto(info.thinkingConfig),
 		supportsGlobalEndpoint: info.supportsGlobalEndpoint,
 		tiers: info.tiers || [],
+		endpoints: [], // Initialize with empty array for backward compatibility
 	}
 }
 
@@ -303,6 +308,39 @@ function convertProtoToApiProvider(provider: ProtoApiProvider): ApiProvider {
 	}
 }
 
+// Convert proto OpenRouterSelectedEndpoints to application OpenRouterSelectedEndpoints
+function convertProtoToEndpoints(proto: ProtoOpenRouterSelectedEndpoints | undefined): OpenRouterSelectedEndpoints | undefined {
+	if (!proto || !proto.endpoints || proto.endpoints.length === 0) {
+		return undefined
+	}
+
+	const result: OpenRouterSelectedEndpoints = {}
+	proto.endpoints.forEach((endpoint) => {
+		if (endpoint.modelId && endpoint.endpointTag) {
+			result[endpoint.modelId] = endpoint.endpointTag
+		}
+	})
+
+	return Object.keys(result).length > 0 ? result : undefined
+}
+
+// Convert application OpenRouterSelectedEndpoints to proto OpenRouterSelectedEndpoints
+function convertEndpointsToProto(
+	endpoints: OpenRouterSelectedEndpoints | undefined,
+): ProtoOpenRouterSelectedEndpoints | undefined {
+	if (!endpoints || Object.keys(endpoints).length === 0) {
+		return undefined
+	}
+
+	const protoEndpoints: SelectedEndpoint[] = Object.entries(endpoints).map(([modelId, endpointTag]) => ({
+		modelId,
+		endpointTag,
+	}))
+
+	return {
+		endpoints: protoEndpoints,
+	}
+}
 // Converts application ApiConfiguration to proto ApiConfiguration
 export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoApiConfiguration {
 	return {
@@ -320,6 +358,7 @@ export function convertApiConfigurationToProto(config: ApiConfiguration): ProtoA
 		openRouterApiKey: config.openRouterApiKey,
 		openRouterModelId: config.openRouterModelId,
 		openRouterModelInfo: convertModelInfoToProtoOpenRouter(config.openRouterModelInfo),
+		openRouterSelectedEndpoints: convertEndpointsToProto(config.openRouterSelectedEndpoints),
 		openRouterProviderSorting: config.openRouterProviderSorting,
 		awsAccessKey: config.awsAccessKey,
 		awsSecretKey: config.awsSecretKey,
@@ -400,6 +439,7 @@ export function convertProtoToApiConfiguration(protoConfig: ProtoApiConfiguratio
 		openRouterModelId: protoConfig.openRouterModelId,
 		openRouterModelInfo: convertProtoToModelInfo(protoConfig.openRouterModelInfo),
 		openRouterProviderSorting: protoConfig.openRouterProviderSorting,
+		openRouterSelectedEndpoints: convertProtoToEndpoints(protoConfig.openRouterSelectedEndpoints),
 		awsAccessKey: protoConfig.awsAccessKey,
 		awsSecretKey: protoConfig.awsSecretKey,
 		awsSessionToken: protoConfig.awsSessionToken,

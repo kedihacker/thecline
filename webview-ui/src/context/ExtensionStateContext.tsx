@@ -27,6 +27,7 @@ import {
 	requestyDefaultModelId,
 	requestyDefaultModelInfo,
 } from "../../../src/shared/api"
+import { OpenRouterSelectedEndpoint as OpenRouterModelEndpoint } from "../../../src/shared/types/openrouter"
 import { McpMarketplaceCatalog, McpServer, McpViewTab } from "../../../src/shared/mcp"
 import { convertTextMateToHljs } from "../utils/textMateToHljs"
 import { OpenRouterCompatibleModelInfo } from "@shared/proto/models"
@@ -37,6 +38,7 @@ interface ExtensionStateContextType extends ExtensionState {
 	showWelcome: boolean
 	theme: Record<string, string> | undefined
 	openRouterModels: Record<string, ModelInfo>
+	openRouterModelEndpoints: OpenRouterModelEndpoint[]
 	openAiModels: string[]
 	requestyModels: Record<string, ModelInfo>
 	mcpServers: McpServer[]
@@ -83,6 +85,7 @@ interface ExtensionStateContextType extends ExtensionState {
 
 	// Refresh functions
 	refreshOpenRouterModels: () => void
+	refreshOpenRouterEndpoints: (modelId: string) => Promise<any>
 	setUserInfo: (userInfo?: UserInfo) => void
 
 	// Navigation state setters
@@ -212,6 +215,7 @@ export const ExtensionStateContextProvider: React.FC<{
 	const [openRouterModels, setOpenRouterModels] = useState<Record<string, ModelInfo>>({
 		[openRouterDefaultModelId]: openRouterDefaultModelInfo,
 	})
+	const [openRouterSelectedEndpoints, setOpenRouterSelectedEndpoints] = useState<OpenRouterModelEndpoint[]>([])
 	const [totalTasksSize, setTotalTasksSize] = useState<number | null>(null)
 	const [availableTerminalProfiles, setAvailableTerminalProfiles] = useState<TerminalProfile[]>([])
 
@@ -637,12 +641,30 @@ export const ExtensionStateContextProvider: React.FC<{
 			.catch((error: Error) => console.error("Failed to refresh OpenRouter models:", error))
 	}, [])
 
+	const refreshOpenRouterEndpoints = useCallback(async (modelId: string) => {
+		try {
+			const response = await ModelsServiceClient.refreshOpenRouterEndpoints(StringRequest.create({ value: modelId }))
+			if (response?.models) {
+				// Update the specific model in the existing models list
+				setOpenRouterModels((prevModels) => ({
+					...prevModels,
+					...response.models,
+				}))
+				return response.models[modelId]
+			}
+		} catch (error) {
+			console.error(`Failed to refresh OpenRouter endpoints for model ${modelId}:`, error)
+			throw error
+		}
+	}, [])
+
 	const contextValue: ExtensionStateContextType = {
 		...state,
 		didHydrateState,
 		showWelcome,
 		theme,
 		openRouterModels,
+		openRouterModelEndpoints: openRouterSelectedEndpoints,
 		openAiModels,
 		requestyModels,
 		mcpServers,
@@ -809,6 +831,7 @@ export const ExtensionStateContextProvider: React.FC<{
 		setMcpTab,
 		setTotalTasksSize,
 		refreshOpenRouterModels,
+		refreshOpenRouterEndpoints,
 		onRelinquishControl,
 		setUserInfo: (userInfo?: UserInfo) => setState((prevState) => ({ ...prevState, userInfo })),
 		setBrowserSettings: (value: BrowserSettings) =>

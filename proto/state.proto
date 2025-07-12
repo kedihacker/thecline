@@ -207,7 +207,7 @@ message ApiConfiguration {
   
   // OpenRouter specific
   optional string openrouter_provider_sorting = 64;
-  
+  optional string openrouter_provider_selected_endpoints = 78;
   // VSCode LM (stored as JSON string due to complex type)
   optional string vscode_lm_model_selector = 65;
   

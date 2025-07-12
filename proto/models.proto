@@ -15,6 +15,8 @@ service ModelsService {
   rpc getVsCodeLmModels(EmptyRequest) returns (VsCodeLmModelsArray);
   // Refreshes and returns OpenRouter models
   rpc refreshOpenRouterModels(EmptyRequest) returns (OpenRouterCompatibleModelInfo);
+  // Refreshes OpenRouter endpoints for a specific model
+  rpc refreshOpenRouterEndpoints(StringRequest) returns (OpenRouterCompatibleModelInfo);
   // Refreshes and returns OpenAI models
   rpc refreshOpenAiModels(OpenAiModelsRequest) returns (StringArray);
   // Refreshes and returns Requesty models
@@ -60,6 +62,42 @@ message ModelTier {
   optional double cache_reads_price = 5;
 }
 
+// Individual endpoint information for OpenRouter models
+message OpenRouterEndpoint {
+  string name = 1;                          // Endpoint name (e.g., "Google | google/gemini-2.5-pro")
+  int32 context_length = 2;                 // Context window size
+  string provider_name = 3;                 // Provider name (e.g., "Google", "Google AI Studio")
+  string tag = 4;                           // Provider tag (e.g., "google-vertex/global", "google-ai-studio")
+  optional int32 max_completion_tokens = 5; // Maximum completion tokens
+  optional int32 max_prompt_tokens = 6;     // Maximum prompt tokens
+  repeated string supported_parameters = 7; // Supported parameters
+  int32 status = 8;                         // Status code
+  double uptime_last_30m = 9;               // Uptime percentage in last 30 minutes
+  optional string quantization = 10;        // Quantization info
+  
+  // Pricing information
+  optional double prompt_price = 11;        // Price per million prompt tokens
+  optional double completion_price = 12;    // Price per million completion tokens
+  optional double request_price = 13;       // Price per request
+  optional double image_price = 14;         // Price per image
+  optional double web_search_price = 15;    // Price per web search
+  optional double internal_reasoning_price = 16; // Price for internal reasoning
+  optional double input_cache_read_price = 17;   // Price for input cache reads
+  optional double input_cache_write_price = 18;  // Price for input cache writes
+  double discount = 19;                     // Discount percentage
+}
+
+// Selected endpoint configuration for a specific model
+message SelectedEndpoint {
+  string model_id = 1;                      // Model ID (e.g., "anthropic/claude-3.5-sonnet")
+  string endpoint_tag = 2;                  // Selected endpoint tag (e.g., "google-vertex/global")
+}
+
+// Collection of selected endpoints
+message OpenRouterSelectedEndpoints {
+  repeated SelectedEndpoint endpoints = 1;
+}
+
 // For OpenRouterCompatibleModelInfo structure in OpenRouterModels
 message OpenRouterModelInfo {
   optional int32 max_tokens = 1;
@@ -74,6 +112,7 @@ message OpenRouterModelInfo {
   optional ThinkingConfig thinking_config = 10;
   optional bool supports_global_endpoint = 11;
   repeated ModelTier tiers = 12;
+  repeated OpenRouterEndpoint endpoints = 13; // All available endpoints for this model
 }
 
 // Shared response message for model information
@@ -177,6 +216,7 @@ message ModelsApiConfiguration {
   optional string open_router_model_id = 13;
   optional OpenRouterModelInfo open_router_model_info = 14;
   optional string open_router_provider_sorting = 15;
+  optional OpenRouterSelectedEndpoints open_router_selected_endpoints = 74;
   optional string aws_access_key = 16;
   optional string aws_secret_key = 17;
   optional string aws_session_token = 18;
@@ -235,4 +275,5 @@ message ModelsApiConfiguration {
   optional string sap_ai_core_token_url = 71;
   optional string sap_ai_core_base_url = 72;
   optional string claude_code_path = 73;
+  // Add new fields above this line to maintain backward compatibility
 }

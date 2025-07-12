@@ -64,7 +64,9 @@ export const OpenRouterProvider = ({ showModelOptions, isPopup, uriScheme }: Ope
 	const { handleFieldChange } = useApiConfigurationHandlers()
 
 	const [providerSortingSelected, setProviderSortingSelected] = useState(!!apiConfiguration?.openRouterProviderSorting)
-
+	const [modelProviderSelection, setModelProviderSelection] = useState(
+		apiConfiguration?.openRouterSelectedEndpoints?.[apiConfiguration?.openRouterModelId || ""] || "",
+	)
 	return (
 		<div>
 			<div>
@@ -141,7 +143,28 @@ export const OpenRouterProvider = ({ showModelOptions, isPopup, uriScheme }: Ope
 							</p>
 						</div>
 					)}
+					<VSCodeCheckbox style={{ marginTop: 10 }} checked={false} onChange={(e: any) => {}}>
+						Enable custom option
+					</VSCodeCheckbox>
 
+					<div style={{ marginBottom: -6 }}>
+						<DropdownContainer className="dropdown-container" zIndex={OPENROUTER_MODEL_PICKER_Z_INDEX + 1}>
+							<VSCodeDropdown
+								style={{ width: "100%", marginTop: 3 }}
+								value=""
+								onChange={(e: any) => {
+									// Handle dropdown change
+								}}>
+								<VSCodeOption value="">
+									{apiConfiguration?.openRouterSelectedEndpoints?.[apiConfiguration.openRouterModelId || ""] ||
+										""}
+								</VSCodeOption>
+							</VSCodeDropdown>
+						</DropdownContainer>
+						<p style={{ fontSize: "12px", marginTop: 3, color: "var(--vscode-descriptionForeground)" }}>
+							Description of what this dropdown does
+						</p>
+					</div>
 					<OpenRouterModelPicker isPopup={isPopup} />
 				</>
 			)}
